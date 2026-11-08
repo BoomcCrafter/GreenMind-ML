@@ -2,8 +2,13 @@ import pandas as pd
 import time
 import serial
 import joblib
+from pathlib import Path
 
-model = joblib.load("model_lr_60s_final.joblib")
+BASE_DIR = Path(__file__).resolve().parent
+
+MODEL_PATH = BASE_DIR.parent / "machine_learning" / "model_lr_60s_final.joblib"
+
+model = joblib.load(MODEL_PATH)
 
 temp_zadana = float(input("Podaj temperature zadaną [C]: "))
 
