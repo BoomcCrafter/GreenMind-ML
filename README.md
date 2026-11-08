@@ -1,345 +1,208 @@
 # 🌱 GreenMind ML
 ### Intelligent Greenhouse Temperature Control System
 
-**Arduino | Raspberry Pi 5 | Python | Machine Learning | Control Engineering**
+**Arduino • Raspberry Pi 5 • Python • Machine Learning • Control Engineering**
 
-GreenMind ML is an experimental engineering project combining embedded systems, electronics, classical control theory, and machine learning.
+GreenMind ML is a practical engineering project combining **embedded systems, electronics, machine learning, and classical control engineering**.
 
-The main objective of the project is to investigate whether a **machine-learning-assisted PI controller can improve temperature regulation compared with a conventional PID controller**.
+The goal was to design and build a real miniature greenhouse, develop a model capable of predicting temperature changes, and investigate an important question:
 
-Unlike purely software-based simulations, GreenMind ML was developed using a real, custom-built miniature greenhouse. The system measures temperature, controls heating and ventilation, collects experimental data, and uses a trained machine learning model to predict future temperature changes.
+**Can a machine-learning-assisted PI controller regulate temperature more accurately than a conventional PID controller?**
 
-The project demonstrates how machine learning can be integrated into a real physical control system.
+To answer this question, I built a physical experimental system, collected real sensor measurements, trained a regression model, implemented two control algorithms, and compared their performance.
+
+![GreenMind ML Prototype](images/model_1.jpg)
 
 ---
 
-## 1. Physical Greenhouse Prototype
+## 🔧 Hardware & System Architecture
 
-The miniature greenhouse was physically built and equipped with an electronic temperature monitoring and control system.
+The experimental greenhouse consists of:
 
-### Hardware Gallery
-
-| Greenhouse Prototype | Internal Construction |
+| Component | Purpose |
 |---|---|
-| ![GreenMind ML prototype](images/model_1.jpg) | ![GreenMind ML hardware](images/model_2.jpg) |
-| ![Greenhouse construction](images/model_3.jpg) | ![Greenhouse electronics](images/model_4.jpg) |
-
-### Hardware Components
-
-| Component | Function |
-|---|---|
-| Raspberry Pi 5 | Machine learning, data processing and controller execution |
+| Raspberry Pi 5 | Machine learning, data processing and control algorithms |
 | Arduino | Sensor acquisition and actuator control |
-| 2 × DHT11 | Temperature measurement at different heights |
-| 12V incandescent bulb | Heating element controlled using PWM |
+| 2 × DHT11 sensors | Temperature measurement at different heights |
+| 12V incandescent bulb | PWM-controlled heating |
 | 12V fan | On/off ventilation |
-| MOSFET | Electronic switching and PWM power control |
-| USB Serial | Communication between Arduino and Raspberry Pi |
+| MOSFET circuit | Heating power control |
+| USB Serial | Communication between Raspberry Pi and Arduino |
 
-### Hardware Development
+Arduino communicates with the physical components, while Raspberry Pi processes measurements and calculates control commands.
 
-The physical greenhouse was designed, assembled, wired, and tested independently.
+The greenhouse was designed, assembled, wired, programmed, and experimentally tested as a working hardware-software system.
 
-The development process included:
+### Prototype Gallery
 
-- Building the miniature experimental chamber.
-- Installing temperature sensors in the upper and lower sections.
-- Implementing PWM control of the heating element.
-- Integrating an on/off ventilation fan.
-- Establishing communication between Arduino and Raspberry Pi.
-- Implementing sensor readings and data transmission.
-- Testing the electrical system and its operation.
-- Collecting temperature measurements during physical experiments.
-
-The result is a working experimental platform for studying temperature dynamics and developing control algorithms.
-
----
-
-## 2. System Operation
-
-The system consists of two main computing devices with different responsibilities.
-
-**Arduino — Hardware Layer**
-
-Arduino is responsible for communicating with the physical components of the greenhouse.
-
-Its main responsibilities include:
-
-- Reading temperatures from both DHT11 sensors.
-- Controlling heating power through PWM.
-- Switching the ventilation fan.
-- Sending measurement data to Raspberry Pi.
-- Receiving control commands from Raspberry Pi.
-
-**Raspberry Pi 5 — Control and Machine Learning Layer**
-
-Raspberry Pi executes the software responsible for temperature regulation and analysis.
-
-Its tasks include:
-
-- Receiving measurements from Arduino.
-- Processing temperature and control data.
-- Executing the PID or PI + ML control algorithm.
-- Loading and using the trained machine learning model.
-- Calculating heating commands.
-- Recording experimental results in CSV files.
-
-The separation between hardware control and higher-level computation allows the system to combine embedded programming with machine learning.
-
----
-
-## 3. Experimental Data Collection
-
-Before implementing the machine learning controller, experimental measurements were collected to study how the greenhouse responds to different operating conditions.
-
-The heating element was controlled using different PWM values, while the ventilation fan operated in defined on/off states.
-
-The experiments were designed to observe the relationship between:
-
-- Current temperature inside the greenhouse.
-- Temperature at different sensor locations.
-- Ambient temperature.
-- Heating power.
-- Ventilation state.
-- Time and temperature changes.
-
-The results were stored in CSV files for further processing in Python.
-
-### Measurement Batches
-
-Data was collected in separate measurement batches representing individual experiments.
-
-This organization is important because consecutive temperature measurements from one experiment are strongly related to each other.
-
-Separating entire measurement batches during model evaluation helps reduce data leakage and provides a more realistic assessment of performance on unseen experiments.
-
----
-
-## 4. Machine Learning Model
-
-One of the main objectives of GreenMind ML was to develop a machine learning model capable of predicting future greenhouse temperature.
-
-The model uses experimental measurements to estimate the expected temperature behavior approximately **60 seconds ahead**.
-
-### Machine Learning Workflow
-
-The development process included:
-
-1. Collecting experimental measurements from the physical greenhouse.
-2. Loading and processing CSV datasets using Pandas.
-3. Preparing input features and prediction targets.
-4. Organizing measurements into experimental batches.
-5. Training and validating regression models.
-6. Evaluating prediction accuracy.
-7. Saving the trained model using Joblib.
-8. Integrating the trained model into the temperature control algorithm.
-
-### Why Predict Future Temperature?
-
-A conventional feedback controller reacts to the current temperature error.
-
-However, a greenhouse has thermal inertia.
-
-Even after heating power is reduced, the temperature may continue increasing because heat has already accumulated inside the system.
-
-Machine learning can provide information about the expected future temperature.
-
-This enables the controller to consider not only the current temperature but also its predicted evolution.
-
-The objective is to improve regulation by anticipating temperature changes rather than reacting only after they occur.
-
----
-
-## 5. Temperature Control Algorithms
-
-Two different control strategies were implemented and experimentally evaluated.
-
-### 5.1 Conventional PID Controller
-
-The classical PID controller uses three components:
-
-**Proportional (P)**
-
-Responds to the current difference between the target temperature and the measured temperature.
-
-**Integral (I)**
-
-Accumulates the temperature error over time and helps eliminate persistent steady-state error.
-
-**Derivative (D)**
-
-Responds to changes in error and can help reduce overshoot.
-
-The PID controller calculates the heating command based on these components.
-
-### 5.2 Machine-Learning-Assisted PI Controller
-
-The second approach combines a PI controller with a machine learning prediction model.
-
-The PI controller provides conventional feedback regulation, while the machine learning model estimates future temperature behavior.
-
-The prediction is incorporated into the control strategy to help anticipate thermal changes.
-
-This approach was developed to investigate whether additional predictive information can improve temperature tracking and reduce excessive heating.
-
-The objective is not to replace classical control theory but to explore how it can be enhanced with machine learning.
-
----
-
-## 6. Experimental Comparison — PID vs PI + ML
-
-Both controllers were tested using the physical greenhouse.
-
-The target temperature during the comparison experiments was **30°C**.
-
-The recorded measurements were used to evaluate several aspects of control performance:
-
-- Time required to approach the target temperature.
-- Temperature tracking accuracy.
-- Maximum temperature overshoot.
-- Temperature fluctuations.
-- Heating PWM behavior.
-- Stability during the final stage of regulation.
-
-### Experimental Charts
-
-The following charts present recorded experimental results and visual comparisons between the two control strategies.
-
-![GreenMind ML experimental plot 1](images/plot_1.png)
-
-![GreenMind ML experimental plot 2](images/plot_2.png)
-
-![GreenMind ML experimental plot 3](images/plot_3.png)
-
-![GreenMind ML experimental plot 4](images/plot_4.png)
-
-### Initial Observations
-
-The initial experiments revealed differences between the two controllers.
-
-**Conventional PID:**
-
-- Reached the target temperature region faster.
-- Exhibited higher temperature overshoot.
-- Demonstrated relatively stable behavior during the final stage of regulation.
-
-**PI + Machine Learning:**
-
-- Approached the target temperature more gradually.
-- Exhibited lower overshoot in the recorded comparison.
-- Achieved a smaller average temperature tracking error during the final stage.
-- Demonstrated the potential benefits of prediction-assisted temperature control.
-
-### Important Limitations
-
-The comparison is based on recorded physical experiments.
-
-Differences in initial and environmental conditions can influence the results.
-
-Therefore, these observations should not be interpreted as proof that machine learning is universally better than classical PID control.
-
-Additional repeated experiments under comparable conditions would be required for a more reliable comparison.
-
----
-
-## 7. GreenMind ML — Interactive Dashboard
-
-A dedicated browser-based dashboard was developed to visualize and compare the experimental results.
-
-The dashboard makes the project easier to understand and allows users to explore the differences between the two control strategies.
-
-### Dashboard Features
-
-- Interactive temperature visualization.
-- Animated playback of recorded measurements.
-- Side-by-side PID and PI + ML comparison.
-- Adjustable playback speed.
-- Heating PWM visualization.
-- Fan operating state.
-- Temperature readings from individual sensors.
-- Temperature tracking error analysis.
-- Performance metrics and experiment summaries.
-
-The dashboard reads recorded CSV measurements.
-
-**It does not directly control the physical greenhouse or run a new physical experiment.**
-
-The dashboard can be launched independently of the hardware, allowing other users to explore the recorded results on their own computers.
-
----
-
-## 8. Video Demonstration
-
-A short video demonstrates the physical GreenMind ML prototype and its operation.
-
-### Watch the Prototype in Action
-
-**🎬 [Watch the GreenMind ML Demonstration (MP4)](videos/video.mp4)**
-
-The recording provides a practical look at the system developed for the experiment.
-
----
-
-## 9. Technologies and Tools
-
-| Category | Technologies |
+| | |
 |---|---|
-| Programming | Python, Arduino C/C++ |
-| Machine Learning | Scikit-learn, Pandas, NumPy |
-| Hardware | Raspberry Pi 5, Arduino |
-| Control Engineering | PID, PI + ML |
-| Model Serialization | Joblib |
-| Communication | USB Serial |
-| Data Storage | CSV |
-| Web Dashboard | HTML, CSS, JavaScript, Python |
-| Development Environment | Visual Studio Code, Linux |
+| ![Prototype](images/model_2.jpg) | ![Hardware](images/model_3.jpg) |
+| ![Greenhouse](images/model_4.jpg) | ![GreenMind ML](images/model_1.jpg) |
 
 ---
 
-## 10. Project Development and AI Transparency
+## 🧠 Machine Learning
 
-**GreenMind ML is an independently developed engineering project.**
+The ML component predicts the **average greenhouse temperature 60 seconds into the future**.
 
-I personally worked on:
+Eight experimental measurement batches were collected and processed using Python and Pandas.
 
-- Physical greenhouse design and construction.
-- Electronics assembly and hardware integration.
-- Arduino programming.
-- Raspberry Pi communication.
-- Experimental data collection.
-- Data preparation and machine learning model development.
-- Implementation of the control algorithms.
-- Integration of machine learning with temperature regulation.
-- Physical testing and experimental evaluation.
+The model development included:
 
-### AI-Assisted Component
+- Feature engineering from temperature readings and operating conditions.
+- Training and testing using separate experimental batches.
+- Group-based cross-validation to reduce data leakage.
+- Comparison of regression approaches.
+- Final selection of a **Linear Regression model with StandardScaler**.
+- Model serialization using Joblib.
 
-**The only component whose code was generated by AI rather than written by me is the final web-based visualization dashboard (`dashboard.py`).**
+Initially, six measurement batches were used for training and validation, while two were held out for testing. After evaluation, the final deployment model was trained using all eight batches.
 
-This component was added to provide an accessible and interactive presentation of the experimental results.
-
-The underlying machine learning experiments, controllers, hardware integration, and physical measurements represent my own engineering work.
+The resulting model provides predictive information that can be used by the temperature controller to anticipate thermal changes.
 
 ---
 
-## 11. Project Objectives and Learning Outcomes
+## ⚙️ PID vs PI + Machine Learning
 
-GreenMind ML was created as a practical engineering project focused on combining software, electronics, automation, and artificial intelligence.
+Two control strategies were implemented:
 
-The main goals were to:
+**PID — Classical Controller**
 
-- Understand the dynamics of a real thermal system.
-- Learn how to collect and analyze physical sensor data.
-- Apply supervised machine learning to temperature prediction.
-- Implement classical and prediction-assisted controllers.
-- Integrate Arduino with Raspberry Pi.
-- Evaluate control performance through experiments.
-- Build a complete hardware-software system.
+Uses proportional, integral, and derivative terms to regulate heating based on the measured temperature error.
 
-The project demonstrates the practical application of machine learning in control engineering, rather than using machine learning only for offline data analysis.
+**PI + ML — Prediction-Assisted Controller**
+
+Combines PI control with a trained machine learning model that estimates future temperature behavior.
+
+Both controllers were tested on the physical greenhouse with a target temperature of **30°C**.
+
+### Experimental Results
+
+| Metric | PID | PI + ML |
+|---|---:|---:|
+| Overall MAE | 1.79°C | 1.76°C |
+| MAE — final 5 minutes | 0.56°C | **0.25°C** |
+| Maximum overshoot | 1.15°C | **0.65°C** |
+| Reaching the target region | Faster | Slower |
+
+### Temperature Comparison
+
+![PID vs PI ML](images/plot_1.png)
+
+The experiments revealed two important differences:
+
+- **PID reached the target temperature faster** and exhibited relatively small fluctuations during the final stage.
+- **PI + ML achieved better average temperature tracking near the end of the experiment**, with lower maximum overshoot.
+
+In the final five minutes, PI + ML reduced the measured mean absolute temperature error by approximately **55%** compared with PID.
+
+These results are preliminary. The experiments had slightly different initial conditions, and further repeated tests are required before drawing general conclusions about controller performance.
+
+### Additional Analysis
+
+| | |
+|---|---|
+| ![Analysis 2](images/plot_2.png) | ![Analysis 3](images/plot_3.png) |
+| ![Analysis 4](images/plot_4.png) | ![Temperature Comparison](images/plot_1.png) |
+
+---
+
+## 📊 Interactive GreenMind ML Dashboard
+
+The project includes a custom web-based dashboard for exploring the recorded experiments.
+
+**Main features:**
+
+- Animated temperature charts.
+- PID and PI + ML comparison modes.
+- Adjustable simulation playback speed.
+- PWM heating visualization.
+- Fan status and sensor measurements.
+- Temperature error and performance analysis.
+
+The dashboard replays recorded CSV measurements. It does not control the physical greenhouse in real time.
+
+### Run the Dashboard
+
+Download the repository using **Code → Download ZIP** and extract it.
+
+Python 3.9 or newer and a modern web browser are required. The dashboard itself uses only Python's standard library.
+
+From the repository root, run:
+
+**Windows:**
+
+`python dashboard/dashboard.py`
+
+**Linux / Raspberry Pi:**
+
+`python3 dashboard/dashboard.py`
+
+Then open:
+
+**http://localhost:8765**
+
+Select a controller and press **Start** to explore the experimental results.
+
+No physical hardware is required for dashboard playback.
+
+---
+
+## 🎬 Video Demonstration
+
+A short demonstration of the physical greenhouse and its operation.
+
+**[▶ Watch the GreenMind ML Demonstration](videos/video.mp4)**
+
+---
+
+## 📁 Repository Structure
+
+```text
+GreenMind-ML/
+├── arduino/
+│   └── szklarnia_arduino.ino
+├── controllers/
+│   ├── regulator_szklarnia.py
+│   └── regulator_ml_szklarnia.py
+├── machine_learning/
+│   ├── model_szklarnia.py
+│   ├── model_lr_60s_final.joblib
+│   └── data/
+│       └── pomiary_TEST01-08.csv
+├── dashboard/
+│   ├── dashboard.py
+│   ├── wyniki_pid.csv
+│   └── wyniki_pi_ml.csv
+├── images/
+├── videos/
+├── requirements.txt
+└── README.md
+```
+
+The repository contains source code, an exported ML model, training measurements, experimental controller results, and visualization tools.
+
+For the machine learning scripts, install the project dependencies using:
+
+`python -m pip install -r requirements.txt`
+
+The pinned dependencies reflect the Raspberry Pi development environment. The hardware controllers additionally require appropriate Arduino connections, serial port configuration, and compatible hardware.
+
+---
+
+## 👨‍💻 Development & AI Transparency
+
+GreenMind ML is my independently developed engineering project.
+
+My work included building the physical greenhouse, integrating the electronics, Arduino programming, Raspberry Pi communication, experimental data collection, machine learning development, control algorithm implementation, and performance evaluation.
+
+**The final web visualization dashboard (`dashboard.py`) is the only component whose code was generated by AI rather than written by me.**
+
+It was integrated into the project to make the experimental results easier to explore and present.
 
 ---
 
 ### 🌱 GreenMind ML
 
-**Exploring the connection between Machine Learning, Embedded Systems and Real-World Control Engineering.**
+*Combining Machine Learning, Embedded Systems, and Control Engineering in a real physical experiment.*
