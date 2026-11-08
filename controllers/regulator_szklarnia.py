@@ -1,14 +1,11 @@
 import serial
 import time
-import pandas as pd
-import joblib
 
-model = joblib.load("model_lr_60s_final.joblib")
 
 temperatura_zadana = float(input("Podaj temperature zadana: [C]: "))
 
 print("Temperatura zadana: ", temperatura_zadana)
-print("Model zaladowany!")
+
 
 arduino = serial.Serial("/dev/ttyUSB0", 9600, timeout=2)
 
@@ -72,23 +69,6 @@ while True:
     roznica_temp = abs(temp_dol - temp_gora)
 
 
-    df = pd.DataFrame([{
-    "temp_dol": temp_dol,
-    "temp_gora": temp_gora,
-    "pwm": pwm,
-    "wentylator": wentylator,
-    "czas_start_min": czas_start_min,
-    "roznica_temp": roznica_temp,
-    "roznica_temp_diff_gora": roznica_temp_diff_gora,
-    "roznica_temp_diff_dol": roznica_temp_diff_dol,
-    "temp_srednia": temp_srednia
-    }])
-
-    df = df[model.feature_names_in_]
-    prognoza = model.predict(df)[0]
-
-    blad_ml = temperatura_zadana - prognoza
-
     print("Temperatura zadana: ", temperatura_zadana)
     print("Temperatura aktualna: ", temp_srednia)
     print("Blad: ", blad)
@@ -151,13 +131,11 @@ while True:
         "temp_gora" : temp_gora,
         "temp_srednia" : temp_srednia,
         "blad" : blad,
-        "blad_ml" : blad_ml,
         "P" : P,
         "I" : I,
         "D" : D,
         "pwm_nadany" : pwm_proponowany,
         "wentylator" : wentylator,
-        "prognoza_ml" : prognoza,
         "Kp" : Kp,
         "Ki" : Ki,
         "Kd" : Kd
