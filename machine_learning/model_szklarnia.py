@@ -12,10 +12,12 @@ from xgboost import XGBRegressor
 from sklearn.svm import SVR
 import joblib
 from sklearn.metrics import mean_absolute_error
+from pathlib import Path
 
 
+BASE_DIR = Path(__file__).resolve().parent
 
-pliki = sorted(glob.glob("pomiary_TEST*.csv"))
+pliki = sorted((BASE_DIR / "data").glob("pomiary_TEST*.csv"))
 tablica_df =[]
 
 for plik in pliki:
@@ -188,6 +190,6 @@ print("MAE na nowych partiach:", mae_test)
 
 model_lr.fit(X, y)
 
-joblib.dump(model_lr, "model_lr_60s_final.joblib")
+joblib.dump(model_lr, BASE_DIR / "model_lr_60s_final.joblib")
 
 print("Model końcowy zapisany!")
